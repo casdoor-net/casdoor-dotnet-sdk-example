@@ -1,89 +1,34 @@
-<h1 align="center" style="border-bottom: none;">Casdoor .NET SDK Samples</h1>
+# Casdoor .NET SDK Example
 
-Here are Casdoor .NET SDK samples for **[casdoor-dotnet-sdk](https://github.com/casdoor/casdoor-dotnet-sdk)**.
+[![Build](https://github.com/casdoor-net/casdoor-dotnet-sdk-example/actions/workflows/build.yml/badge.svg)](https://github.com/casdoor-net/casdoor-dotnet-sdk-example/actions/workflows/build.yml)
+[![License](https://img.shields.io/github/license/casdoor-net/casdoor-dotnet-sdk-example)](https://github.com/casdoor-net/casdoor-dotnet-sdk-example/blob/master/LICENSE)
+[![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
 
-| Sample Name                          | Dependencies      | **Description**                |
-| ------------------------------------ | ----------------- | ------------------------------ |
-| <a href="#ConsoleApp">ConsoleApp</a> | .NET 6.0 or newer | Sample of a simple console app |
-| <a href="#MvcApp">MvcApp</a>         | .NET 6.0 or newer | Sample of a MVC webapp         |
-| <a href="#MvcApi">MvcApi</a>         | .NET 7.0 or newer | Sample of a MVC webapi         |
+Samples of signing in with [Casdoor](https://casdoor.ai/) in .NET, using [casdoor-dotnet-sdk](https://github.com/casdoor-net/casdoor-dotnet-sdk).
 
-## Demo Video
+| Sample                    | Package                                                                 | Description                                                                |
+|---------------------------|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [ConsoleApp](#consoleapp) | [Casdoor.Client](https://www.nuget.org/packages/Casdoor.Client)         | A console app: gets a token with a username and password, and parses it    |
+| [MvcApp](#mvcapp)         | [Casdoor.AspNetCore](https://www.nuget.org/packages/Casdoor.AspNetCore) | An ASP.NET Core MVC web app that signs users in with Casdoor (OIDC)        |
+| [MvcApi](#mvcapi)         | [Casdoor.AspNetCore](https://www.nuget.org/packages/Casdoor.AspNetCore) | A web API protected by Casdoor access tokens, and a console app calling it |
 
-![mvcapi1](docs/assets/MvcApi.gif)
+![MvcApi](docs/assets/MvcApi.gif)
 
-## <a id="ConsoleApp">ConsoleApp</a>
+## Prerequisites
 
-This sample simply shows how to use [Casdoor.Client](https://github.com/casdoor/casdoor-dotnet-sdk/tree/master/src/Casdoor.Client) package. It is an API client implementation for the Casdoor, used to call the Casdoor APIs.
+- [.NET 8 SDK](https://dotnet.microsoft.com/download) or newer
+- A Casdoor server. The samples are preconfigured for the public demo server https://door.casdoor.com, so they run as is. To use your own, see [Casdoor installation](https://casdoor.ai/docs/basic/server-installation).
 
-### Quickstart
-
-```
-git clone https://github.com/casdoor/casdoor-dotnet-sdk-example.git
+```shell
+git clone https://github.com/casdoor-net/casdoor-dotnet-sdk-example
 cd casdoor-dotnet-sdk-example
-dotnet run --project ConsoleApp
 ```
 
-Some information will be displayed on the console, which is from the `Program.cs` file and has been processed by Casdoor.
+## Configuration
 
-### Configuration
+Skip this section to try the samples with the public demo server.
 
-Now open `Program.cs` file and you can see the following code:
-
-```c#
-var httpClient = new HttpClient();
-var options = new CasdoorOptions
-{
-    Endpoint = "https://door.casdoor.com",
-    OrganizationName = "casbin",
-    ApplicationName = "app-build-in",
-    ApplicationType = "native",
-    ClientId = "b800a86702dd4d29ec4d",
-    ClientSecret = "1219843a8db4695155699be3a67f10796f2ec1d5",
-    CallbackPath = "/callback",
-    RequireHttpsMetadata = true,
-    Scope = "openid profile email"
-};
-var client = new CasdoorClient(httpClient, options);
-```
-
-The meanings of some fields are explained as follows:
-
-| Name                 | Must | Description                                                  |
-| -------------------- | ---- | ------------------------------------------------------------ |
-| Endpoint             | Yes  | Your Casdoor host.                                           |
-| OrganizationName     | Yes  | The organization that the application belongs to.            |
-| ApplicationName      | Yes  | Your application name.                                       |
-| ApplicationType      | Yes  | Your application type. Must be webapp, webapi or native.     |
-| ClientId             | Yes  | Your OAuth client id.                                        |
-| ClientSecret         | Yes  | Your OAuth client secret.                                    |
-| CallbackPath         | No   | The callback path that the client will be redirected to after the user has authenticated. Default is "/casdoor/signin-callback". |
-| RequireHttpsMetadata | No   | Whether requires https for Casdoor endpoint.                 |
-| Scope                | No   | The scopes that the client is requesting.                    |
-
-For more information, refer to https://github.com/casdoor/casdoor-dotnet-sdk/blob/master/README.md .
-
-## <a id="MvcApp">MvcApp</a>
-
-This sample shows how to use [Casdoor.AspNetCore](https://github.com/casdoor/casdoor-dotnet-sdk/tree/master/src/Casdoor.AspNetCore) package for Casdoor authentication. 
-
-### Quickstart
-
-```bash
-git clone https://github.com/casdoor/casdoor-dotnet-sdk-example.git
-cd casdoor-dotnet-sdk-example
-dotnet run --project MvcApp
-```
-
-The default settings use the public demo Casdoor and Casnode configuration. Now Casdoor is listening on `http://localhost:5000` and `https://localhost:5001`, and you can open your browser and visit any of them.
-
-![mvcapp1](docs/assets/mvcapp-login.png)
-
-Input `admin` and `123` to sign in, or you can register a new account. 
-
-### Configure your Casdoor
-
-You can change the settings in the `appsettings.json` file according to the deployed Casdoor configuration. Here are relevant settings in this sample.
+In your Casdoor, create (or reuse) an organization and an application. All samples take the same options, in `Program.cs` (ConsoleApp, CallerSample) or in the `Casdoor` section of `appsettings.json` (MvcApp, ApiSample):
 
 ```json
 "Casdoor": {
@@ -95,98 +40,92 @@ You can change the settings in the `appsettings.json` file according to the depl
     "ClientSecret": "1219843a8db4695155699be3a67f10796f2ec1d5",
     "CallbackPath": "/callback",
     "RequireHttpsMetadata": false
-},
+}
 ```
 
-The meanings of some fields are explained as follows:
+| Name                 | Required | Description                                                                            |
+|----------------------|----------|----------------------------------------------------------------------------------------|
+| Endpoint             | Yes      | Casdoor server URL                                                                     |
+| OrganizationName     | Yes      | Organization of the application                                                        |
+| ApplicationName      | Yes      | Name of the application                                                                |
+| ApplicationType      | Yes      | `webapp` (signs users in, OIDC), `webapi` (verifies bearer tokens) or `native`         |
+| ClientId             | Yes      | Client ID of the application                                                           |
+| ClientSecret         | Yes      | Client secret of the application                                                       |
+| CallbackPath         | No       | Path Casdoor redirects back to after signing in, `/casdoor/signin-callback` by default |
+| RequireHttpsMetadata | No       | Whether the Casdoor endpoint must be HTTPS                                             |
+| Scope                | No       | Scopes to request, for example `openid profile email`                                  |
 
-| Name                 | Must | Description                                                  |
-| -------------------- | ---- | ------------------------------------------------------------ |
-| Endpoint             | Yes  | Your Casdoor host.                                           |
-| OrganizationName     | Yes  | The organization that the application belongs to.            |
-| ApplicationName      | Yes  | Your application name.                                       |
-| ApplicationType      | Yes  | Your application type. Can be webapp or webapi.              |
-| ClientId             | Yes  | Your OAuth client id.                                        |
-| ClientSecret         | Yes  | Your OAuth client secret.                                    |
-| CallbackPath         | No   | The callback path that the client will be redirected to after the user has authenticated. Default is "/casdoor/signin-callback". |
-| RequireHttpsMetadata | No   | Whether requires https for Casdoor endpoint.                 |
+More options: [casdoor-dotnet-sdk README](https://github.com/casdoor-net/casdoor-dotnet-sdk/blob/master/README.md).
 
-In addition, some launch settings are placed in the `Properties/launchSettings.json` file, such as the listening URLs `http://localhost:5000;https://localhost:5001`, to facilitate your use of this sample. This file is not necessary.
+## ConsoleApp
 
-For more information, refer to https://github.com/casdoor/casdoor-dotnet-sdk/blob/master/README.md .
+[ConsoleApp/Program.cs](ConsoleApp/Program.cs) uses `CasdoorClient`, the API client of Casdoor, without ASP.NET Core:
 
-## <a id="MvcApi">MvcApi</a>
+1. reads the OpenID Connect configuration of Casdoor (`options.GetOpenIdConnectConfigurationAsync()`),
+2. gets the tokens of a user with the username and password (`client.RequestPasswordTokenAsync()`, the application needs the **Password** grant type),
+3. verifies the access token with the keys of Casdoor and reads the user from it (`client.ParseJwtToken()`).
 
-This sample shows how to use [Casdoor.AspNetCore](https://github.com/casdoor/casdoor-dotnet-sdk/tree/master/src/Casdoor.AspNetCore) package for Casdoor authentication. It consists of a WebApi authenticated by CasDoor and a console program that calls it.
-
-### Quickstart
-
-```bash
-git clone https://github.com/casdoor/casdoor-dotnet-sdk-example.git
-cd .\casdoor-dotnet-sdk-example\MvcApi
+```shell
+dotnet run --project ConsoleApp
 ```
 
-To run the Api:
+## MvcApp
 
-```bash
-dotnet run --project ApiSample
+[MvcApp](MvcApp) signs users in with Casdoor over OpenID Connect and keeps the session in a cookie:
+
+```csharp
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCasdoor(builder.Configuration.GetSection("Casdoor"))
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 ```
 
-This Api comes from the Visual Studio example and after running it you will see the following:
+Every page needs a signed-in user, so opening the app redirects to the Casdoor sign-in page; the home page then shows the claims of the user. **Sign out** ends the session of the app.
 
-```bash
-info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: https://localhost:7265
-info: Microsoft.Hosting.Lifetime[14]
-      Now listening on: http://localhost:5076
-info: Microsoft.Hosting.Lifetime[0]
-      Application started. Press Ctrl+C to shut down.
-info: Microsoft.Hosting.Lifetime[0]
-      Hosting environment: Development
-info: Microsoft.Hosting.Lifetime[0]
-      Content root path: {Path}\casdoor-dotnet-sdk-example\MvcApi\ApiSample
+```shell
+dotnet run --project MvcApp
 ```
 
-To run the Caller:
+Open http://localhost:5000 (or https://localhost:5001). On the demo server, sign in with username `admin` and password `123`.
 
-```bash
-dotnet run --project CallerSample
+![mvcapp](docs/assets/mvcapp-login.png)
+
+With your own Casdoor, add `http://localhost:5000/callback` and `https://localhost:5001/callback` (the `CallbackPath`) to the application's **Redirect URLs**.
+
+## MvcApi
+
+[MvcApi/ApiSample](MvcApi/ApiSample) is a web API that accepts only the access tokens issued by Casdoor. `AddCasdoor()` with `"ApplicationType": "webapi"` sets up JWT bearer authentication (the keys come from Casdoor, the audience is the client ID), and `[Authorize]` protects the controller:
+
+```csharp
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddCasdoor(builder.Configuration.GetSection("Casdoor"));
 ```
 
-This caller will automatically get the token and call the aforementioned Api. If the message shown below appears after running, the call was successful.
+[MvcApi/CallerSample](MvcApi/CallerSample) gets a token from Casdoor and calls the API with `Authorization: Bearer <access token>`.
+
+Run the API, at http://localhost:5076 (Swagger UI at http://localhost:5076/swagger):
+
+```shell
+dotnet run --project MvcApi/ApiSample
+```
+
+In another terminal, run the caller:
+
+```shell
+dotnet run --project MvcApi/CallerSample
+```
 
 ```
-token: {token.AccessToken}
+token: eyJhbGciOiJSUzI1NiIs...
+Without the token: 401 Unauthorized
 API Response:
-[{"date":"2023-08-09","temperatureC":-5,"temperatureF":24,"summary":"Warm"},{"date":"2023-08-10","temperatureC":6,"temperatureF":42,"summary":"Scorching"},{"date":"2023-08-11","temperatureC":45,"temperatureF":112,"summary":"Freezing"},{"date":"2023-08-12","temperatureC":29,"temperatureF":84,"summary":"Hot"},{"date":"2023-08-13","temperatureC":23,"temperatureF":73,"summary":"Mild"}]
+[{"date":"2026-10-08","temperatureC":-7,"temperatureF":20,"summary":"Sweltering"}, ...]
 ```
 
-### Configure your Casdoor
+## Resources
 
-Almost identical to MvcApp, you can change the settings in the `appsettings.json` file according to the deployed Casdoor configuration. Here are relevant settings in this api sample.
+- [Casdoor documentation](https://casdoor.ai/docs/overview)
+- [casdoor-dotnet-sdk](https://github.com/casdoor-net/casdoor-dotnet-sdk)
 
-```json
-"CasDoor": {
-    "Endpoint": "https://door.casdoor.com",
-    "OrganizationName": "casbin",
-    "ApplicationName": "app-example",
-    "ApplicationType": "webapi",
-    "ClientId": "b800a86702dd4d29ec4d",
-    "ClientSecret": "1219843a8db4695155699be3a67f10796f2ec1d5",
-    "CallbackPath": "/callback",
-    "RequireHttpsMetadata": false
-  },
-```
+## License
 
-The meanings of some fields are explained as follows:
-
-| Name                 | Must | Description                                                  |
-| -------------------- | ---- | ------------------------------------------------------------ |
-| Endpoint             | Yes  | Your Casdoor host.                                           |
-| OrganizationName     | Yes  | The organization that the application belongs to.            |
-| ApplicationName      | Yes  | Your application name.                                       |
-| ApplicationType      | Yes  | Your application type.                                       |
-| ClientId             | Yes  | Your OAuth client id.                                        |
-| ClientSecret         | Yes  | Your OAuth client secret.                                    |
-| CallbackPath         | No   | The callback path that the client will be redirected to after the user has authenticated. Default is "/casdoor/signin-callback". |
-| RequireHttpsMetadata | No   | Whether requires https for Casdoor endpoint.                 |
+[Apache-2.0](LICENSE)

@@ -1,5 +1,4 @@
-﻿@using System.Security.Principal
-@using Casdoor.Client
+﻿@using Casdoor.Client
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject CasdoorOptions Options
 
@@ -8,13 +7,18 @@
     {
         <span class="navbar-text text-dark">Hello @User.Identity?.Name!</span>
         <li class="nav-item">
-            <a class="nav-link text-dark" href="@Options.Endpoint">Profile</a>
+            <a class="nav-link text-dark" href="@(Options.Endpoint.TrimEnd('/'))/account">Profile</a>
+        </li>
+        <li class="nav-item">
+            <form asp-controller="Account" asp-action="SignOutUser" method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Sign out</button>
+            </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" href="@Options.Endpoint">Sign in</a>
+            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Sign in</a>
         </li>
     }
 </ul>

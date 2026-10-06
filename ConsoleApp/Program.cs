@@ -8,7 +8,7 @@ var options = new CasdoorOptions
     // Require: Basic options
     Endpoint = "https://door.casdoor.com",
     OrganizationName = "casbin",
-    ApplicationName = "app-build-in",
+    ApplicationName = "app-example",
     ApplicationType = "native", // webapp, webapi or native
     ClientId = "b800a86702dd4d29ec4d",
     ClientSecret = "1219843a8db4695155699be3a67f10796f2ec1d5",
@@ -27,7 +27,7 @@ var options = new CasdoorOptions
 
 var client = new CasdoorClient(httpClient, options);
 
-// If you want look PII in logs or exception, you can set the following
+// To see the details (PII) in the logs and the exceptions of token validation, for development only
 IdentityModelEventSource.ShowPII = true;
 
 var configuration = await options.GetOpenIdConnectConfigurationAsync();
@@ -58,4 +58,22 @@ if (token.IsError is false)
 else
 {
     ConsoleExtension.WriteLine(token.Error, ConsoleColor.Red);
+    return 1;
 }
+
+// The access token is a JWT, parse and verify it with the keys of Casdoor to get the user
+var user = client.ParseJwtToken(token.AccessToken, true);
+ConsoleExtension.WriteLine("Parse the access token...");
+if (user is null)
+{
+    ConsoleExtension.WriteLine("The access token is not a valid JWT.", ConsoleColor.Red);
+    return 1;
+}
+ConsoleExtension.JsonWriteLine(new
+{
+    user.Owner,
+    user.Name,
+    user.DisplayName,
+    user.Email,
+}, ConsoleColor.DarkCyan);
+return 0;

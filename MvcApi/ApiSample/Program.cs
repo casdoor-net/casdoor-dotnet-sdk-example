@@ -35,9 +35,10 @@ builder.Services.AddSwaggerGen(c =>
         });
 });
 
-IdentityModelEventSource.ShowPII = true;
-
 var app = builder.Build();
+
+// Shows the details (PII) of token validation errors in the logs, for development only
+IdentityModelEventSource.ShowPII = app.Environment.IsDevelopment();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -45,8 +46,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

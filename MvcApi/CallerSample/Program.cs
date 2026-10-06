@@ -1,7 +1,9 @@
-﻿using Casdoor.Client;
-using Microsoft.IdentityModel.Logging;
+﻿using System.Net.Http.Headers;
+using Casdoor.Client;
 
-var httpClientApi = new HttpClient();
+// usage: dotnet run --project MvcApi/CallerSample [URL of the API]
+var apiUrl = args.Length > 0 ? args[0] : "http://localhost:5076/WeatherForecast";
+
 var options = new CasdoorOptions
 {
     Endpoint = "https://door.casdoor.com",
@@ -11,43 +13,38 @@ var options = new CasdoorOptions
     ClientId = "b800a86702dd4d29ec4d",
     ClientSecret = "1219843a8db4695155699be3a67f10796f2ec1d5",
 };
+var client = new CasdoorClient(new HttpClient(), options);
 
-var client = new CasdoorClient(httpClientApi, options);
-
-IdentityModelEventSource.ShowPII = true;
 var token = await client.RequestPasswordTokenAsync("admin", "123");
-if (token.AccessToken is null)
+if (token.IsError || token.AccessToken is null)
 {
-    Console.WriteLine("Failed to get the token.");
-    return;
+    Console.WriteLine($"Failed to get the token: {token.Error}");
+    return 1;
 }
 Console.WriteLine($"token: {token.AccessToken}");
 
-string apiUrl = "https://localhost:7265/WeatherForecast";
-HttpClient httpClientCaller = new HttpClient();
-
-Console.ForegroundColor = ConsoleColor.Blue;
-
+var httpClient = new HttpClient();
 try
 {
-    httpClientCaller.DefaultRequestHeaders.Add("Authorization", $"Bearer {token.AccessToken}");
+    // without a token the API answers 401
+    var anonymous = await httpClient.GetAsync(apiUrl);
+    Console.WriteLine($"Without the token: {(int)anonymous.StatusCode} {anonymous.StatusCode}");
 
-    HttpResponseMessage response = await httpClientCaller.GetAsync(apiUrl);
+    var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+    var response = await httpClient.SendAsync(request);
+    if (!response.IsSuccessStatusCode)
+    {
+        Console.WriteLine($"API request failed with status code: {(int)response.StatusCode} {response.StatusCode}");
+        return 1;
+    }
 
-    if (response.IsSuccessStatusCode)
-    {
-        string content = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("API Response:");
-        Console.WriteLine(content);
-    }
-    else
-    {
-        Console.WriteLine("API request failed with status code:" + response.StatusCode);
-    }
+    Console.WriteLine("API Response:");
+    Console.WriteLine(await response.Content.ReadAsStringAsync());
+    return 0;
 }
 catch (HttpRequestException ex)
 {
-    Console.WriteLine("HTTP request exception:" + ex.Message);
+    Console.WriteLine($"HTTP request exception: {ex.Message}. Is ApiSample running at {apiUrl}?");
+    return 1;
 }
-
-Console.ResetColor();
